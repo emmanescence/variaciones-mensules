@@ -24,7 +24,7 @@ def create_combined_matrix(tickers, selected_months=None):
     # Combinar las matrices en una sola
     combined_matrix = pd.concat(matrices, axis=1, keys=tickers)
 
-    # Renombrar columnas para que tengan nombres de mes
+    # Renombrar columnas para que tengan nombres de mes y ticker
     combined_matrix.columns = [f'{month}_{ticker}' for ticker in tickers for month in combined_matrix.columns.levels[1]]
 
     # Filtrar para los meses seleccionados si se especifican
@@ -37,6 +37,9 @@ def create_combined_matrix(tickers, selected_months=None):
 
     # Convertir los valores a cadena con formato de coma decimal
     combined_matrix_formatted = combined_matrix_filtered.applymap(lambda x: f"{x:,.2f}".replace('.', ','))
+
+    # Asegurarse de que los años se muestren sin separador de miles
+    combined_matrix_formatted.index = combined_matrix_formatted.index.astype(int).astype(str)
 
     return combined_matrix_formatted
 
@@ -58,8 +61,8 @@ def color_map(val):
 # Configuración de la interfaz de usuario en Streamlit
 st.title("Análisis de Variaciones Mensuales")
 
-# Entrada de texto para seleccionar los tickers
-tickers_input = st.text_input("Introduce los tickers separados por comas:", "GGAL.BA,YPFD.BA,PAMP.BA")
+# Entrada de texto para seleccionar los tickers con aclaración
+tickers_input = st.text_input("Introduce los tickers separados por comas (Para activos argentinos sumar .BA al ticker):", "GGAL.BA,YPFD.BA,PAMP.BA")
 
 # Convertir el input de texto en una lista de tickers
 tickers = [ticker.strip() for ticker in tickers_input.split(",")]
