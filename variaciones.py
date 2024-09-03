@@ -62,7 +62,7 @@ def color_map(val):
 st.title("Análisis de Variaciones Mensuales")
 
 # Entrada de texto para seleccionar los tickers con aclaración
-tickers_input = st.text_input("Introduce los tickers separados por comas (Para activos argentinos sumar .BA al ticker):", "GGAL.BA,YPFD.BA,PAMP.BA")
+tickers_input = st.text_input("Introduce los tickers separados por comas. Para activos argentinos sumar .BA al ticker:", "GGAL.BA,YPFD.BA,PAMP.BA")
 
 # Convertir el input de texto en una lista de tickers
 tickers = [ticker.strip() for ticker in tickers_input.split(",")]
