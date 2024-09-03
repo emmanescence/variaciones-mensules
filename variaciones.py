@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 
+# Función para obtener las variaciones mensuales de un ticker
 def get_monthly_returns(ticker):
     data = yf.download(ticker, start='2004-01-01', end='2024-8-25', progress=False)
     monthly_data = data['Adj Close'].resample('M').last()
@@ -12,6 +13,7 @@ def get_monthly_returns(ticker):
     pivot_matrix = matrix.pivot(index='Year', columns='Month', values='Adj Close')
     return pivot_matrix
 
+# Función para crear la matriz combinada con los tickers seleccionados
 def create_combined_matrix(tickers, selected_months=None):
     # Obtener las matrices de variaciones mensuales para todos los tickers
     matrices = [get_monthly_returns(ticker) for ticker in tickers]
@@ -27,6 +29,7 @@ def create_combined_matrix(tickers, selected_months=None):
 
     # Filtrar para los meses seleccionados si se especifican
     if selected_months is not None:
+        # Filtrar por los meses seleccionados sin incluir sufijos
         selected_columns = [col for col in combined_matrix.columns if int(col.split('_')[0]) in selected_months]
         combined_matrix_filtered = combined_matrix[selected_columns]
     else:
@@ -52,22 +55,25 @@ def color_map(val):
     text_color = 'black' if val < 100.5 else 'white'
     return f'background-color: {bg_color}; color: {text_color}'
 
-# Iniciar la aplicación de Streamlit
-st.title("Matriz de Variaciones Mensuales")
+# Configuración de la interfaz de usuario en Streamlit
+st.title("Análisis de Variaciones Mensuales")
 
-# Entrada de los tickers
-tickers_input = st.text_input("Ingrese los tickers separados por comas", "GGAL.BA, YPFD.BA, PAMP.BA, BMA.BA, METR.BA")
-tickers = [ticker.strip() for ticker in tickers_input.split(',')]
+# Entrada de texto para seleccionar los tickers
+tickers_input = st.text_input("Introduce los tickers separados por comas:", "GGAL.BA,YPFD.BA,PAMP.BA")
 
-# Selección de meses
-selected_months = st.multiselect("Seleccione los meses que desea observar", list(range(1, 13)), [9])
+# Convertir el input de texto en una lista de tickers
+tickers = [ticker.strip() for ticker in tickers_input.split(",")]
 
-# Botón para generar la matriz
-if st.button("Generar Matriz"):
-    # Crear la matriz combinada filtrada por meses
+# Entrada para seleccionar los meses
+selected_months = st.multiselect("Selecciona los meses que deseas observar:", list(range(1, 13)), default=[9])
+
+# Crear la matriz combinada filtrada por meses
+if st.button("Generar análisis"):
     combined_matrix_formatted = create_combined_matrix(tickers, selected_months)
 
     # Aplicar el estilo a la matriz combinada
     styled_matrix_combined = combined_matrix_formatted.style.applymap(color_map)
 
-    # Mostrar la matriz con estilo en Streamlit
+    # Mostrar la tabla estilizada en Streamlit
+    st.dataframe(styled_matrix_combined)
+
